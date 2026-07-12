@@ -1,0 +1,36 @@
+/* src/components/ui/profile-ui/profile-ui.module.css */
+.form {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+  width: 100%;
+  max-width: 480px;
+}
+
+.input {
+  width: 100%;
+}
+
+.button {
+  display: flex;
+  justify-content: flex-end;
+  gap: 20px;
+  width: 100%;
+}
+
+.logoutButton {
+  margin-top: 80px;
+  color: #8585ad;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-family: 'Jet Brains Mono', sans-serif;
+  font-size: 16px;
+  line-height: 24px;
+  transition: color 0.3s;
+}
+
+.logoutButton:hover {
+  color: #f2f2f3;
+}

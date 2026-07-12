@@ -1,15 +1,27 @@
-import { Preloader } from '@ui';
+import { useEffect } from 'react';
+import { useDispatch, useSelector } from '../../services/store';
 import { FeedUI } from '@ui-pages';
-import { TOrder } from '@utils-types';
-import { FC } from 'react';
 
-export const Feed: FC = () => {
-  /** TODO: взять переменную из стора */
-  const orders: TOrder[] = [];
+export const Feed = () => {
+  const dispatch = useDispatch();
+  const { orders } = useSelector((state) => state.feed);
 
-  if (!orders.length) {
-    return <Preloader />;
-  }
+  useEffect(() => {
+    dispatch({
+      type: 'feed/connect',
+      payload: 'wss://norma.nomoreparties.space/orders/all'
+    });
+    return () => {
+      dispatch({ type: 'feed/disconnect' });
+    };
+  }, [dispatch]);
 
-  <FeedUI orders={orders} handleGetFeeds={() => {}} />;
+  const handleGetFeeds = () => {
+    dispatch({
+      type: 'feed/connect',
+      payload: 'wss://norma.nomoreparties.space/orders/all'
+    });
+  };
+
+  return <FeedUI orders={orders} handleGetFeeds={handleGetFeeds} />;
 };
