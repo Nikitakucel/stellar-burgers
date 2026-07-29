@@ -1,4 +1,3 @@
-// src/services/slices/feedSlice.ts
 import { createSlice } from '@reduxjs/toolkit';
 import { TOrder } from '../../utils/types';
 

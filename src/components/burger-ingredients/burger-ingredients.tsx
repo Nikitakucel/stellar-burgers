@@ -1,40 +1,53 @@
-// src/components/burger-ingredients/burger-ingredients.tsx
-import { useState, useRef, useEffect, FC } from 'react';
+import { useState, useRef, useEffect, FC, useMemo } from 'react';
 import { useInView } from 'react-intersection-observer';
-import { useNavigate, useLocation } from 'react-router-dom';
-
-import { TTabMode } from '@utils-types';
-import { BurgerIngredientsUI } from '../ui/burger-ingredients';
+import { useNavigate } from 'react-router-dom';
 import { useSelector } from '../../services/store';
-import { TIngredient } from '../../utils/types';
+import { TTabMode, TIngredient } from '@utils-types';
+import { BurgerIngredientsUI } from '../ui/burger-ingredients';
 
 export const BurgerIngredients: FC = () => {
   const navigate = useNavigate();
-  const location = useLocation();
-
-  // 1. Получаем список всех ингредиентов и текущий конструктор из Redux
   const { items } = useSelector((state) => state.ingredients);
-  const { bun, ingredients: constructorIngredients } = useSelector(
+  const { bun: chosenBun, ingredients: chosenIngredients } = useSelector(
     (state) => state.burgerConstructor
   );
 
-  // 2. Фильтруем ингредиенты по категориям
-  const buns = items.filter((item) => item.type === 'bun');
-  const mains = items.filter((item) => item.type === 'main');
-  const sauces = items.filter((item) => item.type === 'sauce');
+  // вычисляем счётчики
+  const counters = useMemo(() => {
+    const counts: Record<string, number> = {};
+    chosenIngredients.forEach((ing) => {
+      counts[ing._id] = (counts[ing._id] || 0) + 1;
+    });
+    if (chosenBun) {
+      counts[chosenBun._id] = 2;
+    }
+    return counts;
+  }, [chosenBun, chosenIngredients]);
 
-  // 3. Функция для подсчета количества каждого ингредиента в конструкторе
-  const getIngredientCount = (id: string) => {
-    if (bun?._id === id) return 1; // Булка может быть только одна
-    return constructorIngredients.filter((item) => item._id === id).length;
-  };
+  const buns = useMemo(
+    () =>
+      items
+        .filter((item) => item.type === 'bun')
+        .map((item) => ({ ...item, count: counters[item._id] || 0 })),
+    [items, counters]
+  );
 
-  // 4. Обработчик клика для открытия модального окна с деталями (и изменения URL)
-  const onIngredientClick = (id: string) => {
-    navigate(`/ingredients/${id}`, { state: { background: location } });
-  };
+  const mains = useMemo(
+    () =>
+      items
+        .filter((item) => item.type === 'main')
+        .map((item) => ({ ...item, count: counters[item._id] || 0 })),
+    [items, counters]
+  );
 
-  // 5. Логика скролла табов (оставил как в шаблоне)
+  const sauces = useMemo(
+    () =>
+      items
+        .filter((item) => item.type === 'sauce')
+        .map((item) => ({ ...item, count: counters[item._id] || 0 })),
+    [items, counters]
+  );
+
   const [currentTab, setCurrentTab] = useState<TTabMode>('bun');
   const titleBunRef = useRef<HTMLHeadingElement>(null);
   const titleMainRef = useRef<HTMLHeadingElement>(null);
@@ -45,13 +58,9 @@ export const BurgerIngredients: FC = () => {
   const [saucesRef, inViewSauces] = useInView({ threshold: 0 });
 
   useEffect(() => {
-    if (inViewBuns) {
-      setCurrentTab('bun');
-    } else if (inViewSauces) {
-      setCurrentTab('sauce');
-    } else if (inViewFilling) {
-      setCurrentTab('main');
-    }
+    if (inViewBuns) setCurrentTab('bun');
+    else if (inViewSauces) setCurrentTab('sauce');
+    else if (inViewFilling) setCurrentTab('main');
   }, [inViewBuns, inViewFilling, inViewSauces]);
 
   const onTabClick = (tab: string) => {
@@ -64,22 +73,16 @@ export const BurgerIngredients: FC = () => {
       titleSaucesRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
-  // 6. Передаём в UI компонент данные с обогащенным свойством count
+  const handleIngredientClick = (id: string) => {
+    navigate(`/ingredients/${id}`, { state: { background: location } });
+  };
+
   return (
     <BurgerIngredientsUI
       currentTab={currentTab}
-      buns={buns.map((item) => ({
-        ...item,
-        count: getIngredientCount(item._id)
-      }))}
-      mains={mains.map((item) => ({
-        ...item,
-        count: getIngredientCount(item._id)
-      }))}
-      sauces={sauces.map((item) => ({
-        ...item,
-        count: getIngredientCount(item._id)
-      }))}
+      buns={buns}
+      mains={mains}
+      sauces={sauces}
       titleBunRef={titleBunRef}
       titleMainRef={titleMainRef}
       titleSaucesRef={titleSaucesRef}
@@ -87,8 +90,7 @@ export const BurgerIngredients: FC = () => {
       mainsRef={mainsRef}
       saucesRef={saucesRef}
       onTabClick={onTabClick}
-      // Передаем колбэк нажатия на ингредиент
-      onIngredientClick={onIngredientClick}
+      onIngredientClick={handleIngredientClick}
     />
   );
 };

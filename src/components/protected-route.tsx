@@ -1,9 +1,7 @@
 import { Navigate, useLocation } from 'react-router-dom';
 import { FC, ReactNode } from 'react';
-// Правильный путь к Store (из components/ подняться на уровень вверх)
 import { useSelector } from '../services/store';
-// Самый правильный путь к Preloader (он лежит в components/ui/preloader)
-import { Preloader } from './ui/preloader/preloader';
+import { Preloader } from '@ui';
 
 interface ProtectedRouteProps {
   onlyUnAuth?: boolean;
@@ -15,8 +13,7 @@ export const ProtectedRoute: FC<ProtectedRouteProps> = ({
   children
 }) => {
   const location = useLocation();
-  // Пока оставляем any, чтобы не было ошибок типов, потом TypeScript сам всё подхватит
-  const { isAuth, isAuthChecked } = useSelector((state: any) => state.user);
+  const { isAuth, isAuthChecked } = useSelector((state) => state.user);
 
   if (!isAuthChecked) {
     return <Preloader />;

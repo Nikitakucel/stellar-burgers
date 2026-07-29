@@ -1,13 +1,11 @@
 import { FC, memo } from 'react';
 import { BurgerConstructorElementUI } from '@ui';
-import { BurgerConstructorElementProps } from './type';
+import { TBurgerConstructorElementProps } from './type';
 
-export const BurgerConstructorElement: FC<BurgerConstructorElementProps> = memo(
-  ({ ingredient, index, totalItems }) => {
+export const BurgerConstructorElement: FC<TBurgerConstructorElementProps> =
+  memo(({ ingredient, index = 0, totalItems = 0 }) => {
     const handleMoveDown = () => {};
-
     const handleMoveUp = () => {};
-
     const handleClose = () => {};
 
     return (
@@ -20,5 +18,4 @@ export const BurgerConstructorElement: FC<BurgerConstructorElementProps> = memo(
         handleClose={handleClose}
       />
     );
-  }
-);
+  });

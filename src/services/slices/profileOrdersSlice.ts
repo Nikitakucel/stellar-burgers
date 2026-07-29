@@ -1,5 +1,4 @@
-// src/services/slices/profileOrdersSlice.ts
-import { createSlice } from '@reduxjs/toolkit';
+import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { TOrder } from '../../utils/types';
 
 export interface ProfileOrdersState {
@@ -24,19 +23,40 @@ const profileOrdersSlice = createSlice({
     },
     wsOpen: (state) => {
       state.isConnected = true;
+      state.error = null;
     },
     wsClose: (state) => {
       state.isConnected = false;
     },
-    wsError: (state, action) => {
+    wsError: (state, action: PayloadAction<string>) => {
+      state.isConnected = false;
       state.error = action.payload;
     },
-    wsMessage: (state, action) => {
+    wsMessage: (
+      state,
+      action: PayloadAction<{
+        orders: TOrder[];
+        total: number;
+        totalToday: number;
+      }>
+    ) => {
       state.orders = action.payload.orders;
+    },
+    clearProfileOrders: (state) => {
+      state.orders = [];
+      state.isConnected = false;
+      state.error = null;
     }
   }
 });
 
-export const { wsConnecting, wsOpen, wsClose, wsError, wsMessage } =
-  profileOrdersSlice.actions;
+export const {
+  wsConnecting,
+  wsOpen,
+  wsClose,
+  wsError,
+  wsMessage,
+  clearProfileOrders
+} = profileOrdersSlice.actions;
+
 export default profileOrdersSlice.reducer;

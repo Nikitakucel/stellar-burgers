@@ -1,12 +1,13 @@
-import { createSlice, PayloadAction, nanoid } from '@reduxjs/toolkit';
-import { TIngredient } from '../../utils/types';
+import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { TConstructorIngredient, TIngredient } from '../../utils/types';
+import { v4 as uuidv4 } from 'uuid';
 
-interface ConstructorState {
-  bun: TIngredient | null;
-  ingredients: (TIngredient & { id: string })[];
+interface BurgerConstructorState {
+  bun: TConstructorIngredient | null;
+  ingredients: TConstructorIngredient[];
 }
 
-const initialState: ConstructorState = {
+const initialState: BurgerConstructorState = {
   bun: null,
   ingredients: []
 };
@@ -15,25 +16,31 @@ const burgerConstructorSlice = createSlice({
   name: 'burgerConstructor',
   initialState,
   reducers: {
-    addIngredient: {
-      reducer: (state, action: PayloadAction<TIngredient & { id: string }>) => {
-        if (action.payload.type === 'bun') {
-          state.bun = action.payload;
-        } else {
-          state.ingredients.push(action.payload);
-        }
-      },
-      // Перед добавлением в массив мы генерируем случайный ID для каждого ингредиента
-      prepare: (ingredient: TIngredient) => {
-        const id = nanoid();
-        return { payload: { ...ingredient, id } };
+    // Универсальный экшен для добавления любого ингредиента
+    addIngredients: (state, action: PayloadAction<TIngredient>) => {
+      const ingredient = action.payload;
+      const uniqueIngredient: TConstructorIngredient = {
+        ...ingredient,
+        id: uuidv4() // добавляем уникальный id, необходимый для конструктора
+      };
+      if (ingredient.type === 'bun') {
+        state.bun = uniqueIngredient;
+      } else {
+        state.ingredients.push(uniqueIngredient);
       }
     },
     removeIngredient: (state, action: PayloadAction<string>) => {
-      // Удаляем по сгенерированному ID, а не по индексу
       state.ingredients = state.ingredients.filter(
-        (item) => item.id !== action.payload
+        (ingredient) => ingredient.id !== action.payload
       );
+    },
+    moveIngredient: (
+      state,
+      action: PayloadAction<{ fromIndex: number; toIndex: number }>
+    ) => {
+      const { fromIndex, toIndex } = action.payload;
+      const [movedIngredient] = state.ingredients.splice(fromIndex, 1);
+      state.ingredients.splice(toIndex, 0, movedIngredient);
     },
     clearConstructor: (state) => {
       state.bun = null;
@@ -42,6 +49,11 @@ const burgerConstructorSlice = createSlice({
   }
 });
 
-export const { addIngredient, removeIngredient, clearConstructor } =
-  burgerConstructorSlice.actions;
+export const {
+  addIngredients,
+  removeIngredient,
+  moveIngredient,
+  clearConstructor
+} = burgerConstructorSlice.actions;
+
 export default burgerConstructorSlice.reducer;
