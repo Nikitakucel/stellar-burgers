@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { useDispatch, useSelector } from '../../services/store';
+import { fetchFeed } from '../../services/slices/feedSlice';
 import { FeedUI } from '@ui-pages';
 
 export const Feed = () => {
@@ -7,20 +8,13 @@ export const Feed = () => {
   const { orders } = useSelector((state) => state.feed);
 
   useEffect(() => {
-    dispatch({
-      type: 'feed/connect',
-      payload: 'wss://norma.nomoreparties.space/orders/all'
-    });
-    return () => {
-      dispatch({ type: 'feed/disconnect' });
-    };
+    // Вместо wsConnect просто вызываем обычный get-запрос
+    dispatch(fetchFeed());
   }, [dispatch]);
 
   const handleGetFeeds = () => {
-    dispatch({
-      type: 'feed/connect',
-      payload: 'wss://norma.nomoreparties.space/orders/all'
-    });
+    // При нажатии на кнопку обновления вызываем тот же экшен
+    dispatch(fetchFeed());
   };
 
   return <FeedUI orders={orders} handleGetFeeds={handleGetFeeds} />;

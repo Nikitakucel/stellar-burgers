@@ -1,47 +1,40 @@
-import { createSlice } from '@reduxjs/toolkit';
+import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+import { getFeedApi } from '../../utils/burger-api';
 import { TOrder } from '../../utils/types';
 
-export interface FeedState {
+export const fetchFeed = createAsyncThunk('feed/fetchFeed', getFeedApi);
+
+const initialState: {
   orders: TOrder[];
   total: number;
   totalToday: number;
-  isConnected: boolean;
-  error: string | null;
-}
-
-const initialState: FeedState = {
+  loading: boolean;
+} = {
   orders: [],
   total: 0,
   totalToday: 0,
-  isConnected: false,
-  error: null
+  loading: false
 };
 
 const feedSlice = createSlice({
   name: 'feed',
   initialState,
-  reducers: {
-    wsConnecting: (state) => {
-      state.isConnected = false;
-      state.error = null;
-    },
-    wsOpen: (state) => {
-      state.isConnected = true;
-    },
-    wsClose: (state) => {
-      state.isConnected = false;
-    },
-    wsError: (state, action) => {
-      state.error = action.payload;
-    },
-    wsMessage: (state, action) => {
-      state.orders = action.payload.orders;
-      state.total = action.payload.total;
-      state.totalToday = action.payload.totalToday;
-    }
+  reducers: {},
+  extraReducers: (builder) => {
+    builder
+      .addCase(fetchFeed.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(fetchFeed.fulfilled, (state, action) => {
+        state.loading = false;
+        state.orders = action.payload.orders;
+        state.total = action.payload.total;
+        state.totalToday = action.payload.totalToday;
+      })
+      .addCase(fetchFeed.rejected, (state) => {
+        state.loading = false;
+      });
   }
 });
 
-export const { wsConnecting, wsOpen, wsClose, wsError, wsMessage } =
-  feedSlice.actions;
 export default feedSlice.reducer;

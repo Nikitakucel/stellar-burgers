@@ -1,4 +1,3 @@
-// src/services/store.ts
 import { configureStore, combineReducers } from '@reduxjs/toolkit';
 import {
   TypedUseSelectorHook,
@@ -10,23 +9,8 @@ import ingredientsReducer from './slices/ingredientsSlice';
 import constructorReducer from './slices/burgerConstructorSlice';
 import orderReducer from './slices/orderSlice';
 import userReducer from './slices/userSlice';
-
-import feedReducer, {
-  wsOpen,
-  wsClose,
-  wsError,
-  wsMessage,
-  wsConnecting
-} from './slices/feedSlice';
-import profileOrdersReducer, {
-  wsOpen as profileWsOpen,
-  wsClose as profileWsClose,
-  wsError as profileWsError,
-  wsMessage as profileWsMessage,
-  wsConnecting as profileWsConnecting
-} from './slices/profileOrdersSlice';
-
-import { socketMiddleware } from './socketMiddleware';
+import feedReducer from './slices/feedSlice';
+import profileOrdersReducer from './slices/profileOrdersSlice';
 
 export const rootReducer = combineReducers({
   ingredients: ingredientsReducer,
@@ -37,33 +21,9 @@ export const rootReducer = combineReducers({
   profileOrders: profileOrdersReducer
 });
 
-const feedActions = {
-  wsConnect: 'feed/connect',
-  wsDisconnect: 'feed/disconnect',
-  wsConnecting: wsConnecting.type,
-  onOpen: wsOpen.type,
-  onClose: wsClose.type,
-  onError: wsError.type,
-  onMessage: wsMessage.type
-};
-
-const profileActions = {
-  wsConnect: 'profileOrders/connect',
-  wsDisconnect: 'profileOrders/disconnect',
-  wsConnecting: profileWsConnecting.type,
-  onOpen: profileWsOpen.type,
-  onClose: profileWsClose.type,
-  onError: profileWsError.type,
-  onMessage: profileWsMessage.type
-};
-
 const store = configureStore({
   reducer: rootReducer,
-  middleware: (getDefaultMiddleware) =>
-    getDefaultMiddleware().concat(
-      socketMiddleware(feedActions),
-      socketMiddleware(profileActions)
-    ),
+  // Убрали middleware, так как WebSocket (socketMiddleware) больше не используется
   devTools: process.env.NODE_ENV !== 'production'
 });
 

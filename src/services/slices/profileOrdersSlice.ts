@@ -1,62 +1,37 @@
-import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+import { getOrdersApi } from '../../utils/burger-api';
 import { TOrder } from '../../utils/types';
 
-export interface ProfileOrdersState {
-  orders: TOrder[];
-  isConnected: boolean;
-  error: string | null;
-}
+export const fetchProfileOrders = createAsyncThunk(
+  'profileOrders/fetchProfileOrders',
+  getOrdersApi
+);
 
-const initialState: ProfileOrdersState = {
+const initialState: {
+  orders: TOrder[];
+  loading: boolean;
+} = {
   orders: [],
-  isConnected: false,
-  error: null
+  loading: false
 };
 
 const profileOrdersSlice = createSlice({
   name: 'profileOrders',
   initialState,
-  reducers: {
-    wsConnecting: (state) => {
-      state.isConnected = false;
-      state.error = null;
-    },
-    wsOpen: (state) => {
-      state.isConnected = true;
-      state.error = null;
-    },
-    wsClose: (state) => {
-      state.isConnected = false;
-    },
-    wsError: (state, action: PayloadAction<string>) => {
-      state.isConnected = false;
-      state.error = action.payload;
-    },
-    wsMessage: (
-      state,
-      action: PayloadAction<{
-        orders: TOrder[];
-        total: number;
-        totalToday: number;
-      }>
-    ) => {
-      state.orders = action.payload.orders;
-    },
-    clearProfileOrders: (state) => {
-      state.orders = [];
-      state.isConnected = false;
-      state.error = null;
-    }
+  reducers: {},
+  extraReducers: (builder) => {
+    builder
+      .addCase(fetchProfileOrders.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(fetchProfileOrders.fulfilled, (state, action) => {
+        state.loading = false;
+        state.orders = action.payload.orders;
+      })
+      .addCase(fetchProfileOrders.rejected, (state) => {
+        state.loading = false;
+      });
   }
 });
-
-export const {
-  wsConnecting,
-  wsOpen,
-  wsClose,
-  wsError,
-  wsMessage,
-  clearProfileOrders
-} = profileOrdersSlice.actions;
 
 export default profileOrdersSlice.reducer;

@@ -1,25 +1,17 @@
-// src/pages/profile-orders/profile-orders.tsx
 import { useEffect } from 'react';
 import { useDispatch, useSelector } from '../../services/store';
-import { getCookie } from '../../utils/cookie';
+import { fetchProfileOrders } from '../../services/slices/profileOrdersSlice';
 import { ProfileOrdersUI } from '@ui-pages';
 
 export const ProfileOrders = () => {
   const dispatch = useDispatch();
   const { orders } = useSelector((state) => state.profileOrders);
-  const accessToken = getCookie('accessToken')?.replace('Bearer ', '');
 
   useEffect(() => {
-    if (accessToken) {
-      dispatch({
-        type: 'profileOrders/connect',
-        payload: `wss://norma.nomoreparties.space/orders?token=${accessToken}`
-      });
-    }
-    return () => {
-      dispatch({ type: 'profileOrders/disconnect' });
-    };
-  }, [dispatch, accessToken]);
+    // Вместо wsConnect вызываем обычный get-запрос с авторизацией
+    // Токен подставится автоматически внутри fetchProfileOrders, который вызывает getOrdersApi
+    dispatch(fetchProfileOrders());
+  }, [dispatch]);
 
   return <ProfileOrdersUI orders={orders} />;
 };
