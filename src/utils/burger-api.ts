@@ -1,9 +1,7 @@
 import { setCookie, getCookie } from './cookie';
 import { TIngredient, TOrder, TUser } from './types';
 
-const URL =
-  process.env.REACT_APP_BURGER_API_URL ||
-  'https://norma.nomoreparties.space/api';
+const BURGER_API_URL = process.env.BURGER_API_URL;
 
 const checkResponse = <T>(res: Response): Promise<T> =>
   res.ok ? res.json() : res.json().then((err) => Promise.reject(err));
@@ -18,7 +16,7 @@ type TRefreshResponse = TServerResponse<{
 }>;
 
 export const refreshToken = (): Promise<TRefreshResponse> =>
-  fetch(`${URL}/auth/token`, {
+  fetch(`${BURGER_API_URL}/auth/token`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json;charset=utf-8' },
     body: JSON.stringify({ token: localStorage.getItem('refreshToken') })
@@ -55,7 +53,7 @@ export const fetchWithRefresh = async <T>(
 
 type TIngredientsResponse = TServerResponse<{ data: TIngredient[] }>;
 export const getIngredientsApi = () =>
-  fetch(`${URL}/ingredients`)
+  fetch(`${BURGER_API_URL}/ingredients`)
     .then((res) => checkResponse<TIngredientsResponse>(res))
     .then((data) => {
       if (data?.success) return data.data;
@@ -71,7 +69,7 @@ type TAuthResponse = TServerResponse<{
 }>;
 
 export const loginUserApi = (data: TLoginData) =>
-  fetch(`${URL}/auth/login`, {
+  fetch(`${BURGER_API_URL}/auth/login`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json;charset=utf-8' },
     body: JSON.stringify(data)
@@ -83,7 +81,7 @@ export const loginUserApi = (data: TLoginData) =>
     });
 
 export const registerUserApi = (data: TRegisterData) =>
-  fetch(`${URL}/auth/register`, {
+  fetch(`${BURGER_API_URL}/auth/register`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json;charset=utf-8' },
     body: JSON.stringify(data)
@@ -95,7 +93,7 @@ export const registerUserApi = (data: TRegisterData) =>
     });
 
 export const logoutApi = () =>
-  fetch(`${URL}/auth/logout`, {
+  fetch(`${BURGER_API_URL}/auth/logout`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json;charset=utf-8' },
     body: JSON.stringify({ token: localStorage.getItem('refreshToken') })
@@ -103,12 +101,12 @@ export const logoutApi = () =>
 
 type TUserResponse = TServerResponse<{ user: TUser }>;
 export const getUserApi = () =>
-  fetchWithRefresh<TUserResponse>(`${URL}/auth/user`, {
+  fetchWithRefresh<TUserResponse>(`${BURGER_API_URL}/auth/user`, {
     headers: { authorization: getCookie('accessToken') as string }
   });
 
 export const updateUserApi = (user: Partial<TRegisterData>) =>
-  fetchWithRefresh<TUserResponse>(`${URL}/auth/user`, {
+  fetchWithRefresh<TUserResponse>(`${BURGER_API_URL}/auth/user`, {
     method: 'PATCH',
     headers: {
       'Content-Type': 'application/json;charset=utf-8',
@@ -125,12 +123,11 @@ type TNewOrder = {
   createdAt: string;
   updatedAt: string;
   number: number;
-  price: number;
 };
 type TNewOrderResponse = TServerResponse<{ order: TNewOrder; name: string }>;
 
 export const orderBurgerApi = (data: string[]) =>
-  fetchWithRefresh<TNewOrderResponse>(`${URL}/orders`, {
+  fetchWithRefresh<TNewOrderResponse>(`${BURGER_API_URL}/orders`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json;charset=utf-8',
@@ -143,7 +140,7 @@ export const orderBurgerApi = (data: string[]) =>
   });
 
 export const forgotPasswordApi = (data: { email: string }) =>
-  fetch(`${URL}/password-reset`, {
+  fetch(`${BURGER_API_URL}/password-reset`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json;charset=utf-8' },
     body: JSON.stringify(data)
@@ -155,7 +152,7 @@ export const forgotPasswordApi = (data: { email: string }) =>
     });
 
 export const resetPasswordApi = (data: { password: string; token: string }) =>
-  fetch(`${URL}/password-reset/reset`, {
+  fetch(`${BURGER_API_URL}/password-reset/reset`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json;charset=utf-8' },
     body: JSON.stringify(data)
@@ -166,14 +163,14 @@ export const resetPasswordApi = (data: { password: string; token: string }) =>
       return Promise.reject(data);
     });
 
-// ====== ДОБАВЛЯЕМ НОВЫЕ МЕТОДЫ ДЛЯ ЛЕНТЫ И ИСТОРИИ ======
+// ДЛЯ ЛЕНТЫ И ИСТОРИИ
 type TFeedResponse = TServerResponse<{
   orders: TOrder[];
   total: number;
   totalToday: number;
 }>;
 export const getFeedApi = () =>
-  fetch(`${URL}/orders/all`)
+  fetch(`${BURGER_API_URL}/orders/all`)
     .then((res) => checkResponse<TFeedResponse>(res))
     .then((data) => {
       if (data?.success) return data;
@@ -181,9 +178,12 @@ export const getFeedApi = () =>
     });
 
 export const getOrdersApi = () =>
-  fetchWithRefresh<TServerResponse<{ orders: TOrder[] }>>(`${URL}/orders`, {
-    headers: { authorization: getCookie('accessToken') as string }
-  }).then((data) => {
+  fetchWithRefresh<TServerResponse<{ orders: TOrder[] }>>(
+    `${BURGER_API_URL}/orders`,
+    {
+      headers: { authorization: getCookie('accessToken') as string }
+    }
+  ).then((data) => {
     if (data?.success) return data;
     return Promise.reject(data);
   });

@@ -1,108 +1,47 @@
-import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
+import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import {
+  getUserApi,
   loginUserApi,
   registerUserApi,
   logoutApi,
-  getUserApi,
-  updateUserApi,
-  TLoginData,
-  TRegisterData
+  updateUserApi
 } from '../../utils/burger-api';
-import { setCookie, deleteCookie } from '../../utils/cookie';
 import { TUser } from '../../utils/types';
 
-export interface UserState {
-  user: TUser | null;
-  isAuth: boolean;
-  isAuthChecked: boolean;
-  loading: boolean;
-  error: string | null;
-}
+export const getUser = createAsyncThunk('user/getUser', getUserApi);
+export const loginUser = createAsyncThunk('user/loginUser', loginUserApi);
+export const registerUser = createAsyncThunk(
+  'user/registerUser',
+  registerUserApi
+);
+export const logoutUser = createAsyncThunk('user/logoutUser', logoutApi);
+export const updateUser = createAsyncThunk('user/updateUser', updateUserApi);
 
-const initialState: UserState = {
-  user: null,
-  isAuth: false,
-  isAuthChecked: false,
-  loading: false,
-  error: null
-};
-
-// Мок-проверка авторизации (сервер недоступен)
-export const checkUserAuth = createAsyncThunk<
-  TUser,
-  void,
-  { rejectValue: string }
->('user/checkAuth', async (_, { rejectWithValue }) => {
-  try {
-    // Пока сервер не работает, просто считаем пользователя неавторизованным
-    // Если нужно захардкодить пользователя, можно вернуть объект TUser
-    // Но лучше оставить так, чтобы можно было тестировать вход
-    return rejectWithValue('Не авторизован');
-  } catch {
-    return rejectWithValue('Не авторизован');
-  }
-});
-
-// Остальные экшены (login, register, logout, update) можно оставить как есть,
-// они не вызываются на главной странице, но если сервер не работает, то при попытке
-// залогиниться тоже упадут. Для теста можно их тоже замокать, но позже.
-
-export const loginUser = createAsyncThunk<
-  TUser,
-  TLoginData,
-  { rejectValue: string }
->('user/login', async (data, { rejectWithValue }) => {
-  try {
-    const response = await loginUserApi(data);
-    setCookie('accessToken', response.accessToken);
-    localStorage.setItem('refreshToken', response.refreshToken);
-    return response.user;
-  } catch {
-    return rejectWithValue('Ошибка входа');
-  }
-});
-
-export const registerUser = createAsyncThunk<
-  TUser,
-  TRegisterData,
-  { rejectValue: string }
->('user/register', async (data, { rejectWithValue }) => {
-  try {
-    const response = await registerUserApi(data);
-    setCookie('accessToken', response.accessToken);
-    localStorage.setItem('refreshToken', response.refreshToken);
-    return response.user;
-  } catch {
-    return rejectWithValue('Ошибка регистрации');
-  }
-});
-
-export const logoutUser = createAsyncThunk<null, void, { rejectValue: string }>(
-  'user/logout',
-  async (_, { rejectWithValue }) => {
+// Экшен для проверки авторизации, который используется в app.tsx
+export const checkUserAuth = createAsyncThunk(
+  'user/checkUserAuth',
+  async (_, { dispatch }) => {
     try {
-      await logoutApi();
-      deleteCookie('accessToken');
-      localStorage.removeItem('refreshToken');
-      return null;
+      await dispatch(getUser()).unwrap();
+      return true;
     } catch {
-      return rejectWithValue('Ошибка выхода');
+      return false;
     }
   }
 );
 
-export const updateUser = createAsyncThunk<
-  TUser,
-  Partial<TRegisterData>,
-  { rejectValue: string }
->('user/update', async (data, { rejectWithValue }) => {
-  try {
-    const response = await updateUserApi(data);
-    return response.user;
-  } catch {
-    return rejectWithValue('Ошибка обновления профиля');
-  }
-});
+// Добавляем оба поля: isAuth (для конструктора) и isAuthChecked (для защищенных роутов)
+const initialState: {
+  user: TUser | null;
+  isAuth: boolean;
+  isAuthChecked: boolean;
+  isLoading: boolean;
+} = {
+  user: null,
+  isAuth: false,
+  isAuthChecked: false,
+  isLoading: false
+};
 
 const userSlice = createSlice({
   name: 'user',
@@ -110,35 +49,65 @@ const userSlice = createSlice({
   reducers: {},
   extraReducers: (builder) => {
     builder
-      .addCase(checkUserAuth.pending, (state) => {
-        state.loading = true;
+      // getUser (получение данных юзера)
+      .addCase(getUser.pending, (state) => {
+        state.isLoading = true;
       })
-      .addCase(checkUserAuth.fulfilled, (state, action) => {
-        state.loading = false;
+      .addCase(getUser.fulfilled, (state, action) => {
+        state.isLoading = false;
         state.isAuth = true;
-        state.isAuthChecked = true;
-        state.user = action.payload;
+        state.isAuthChecked = true; // Помечаем, что проверка прошла
+        state.user = action.payload.user;
+      })
+      .addCase(getUser.rejected, (state) => {
+        state.isLoading = false;
+        state.isAuth = false;
+        state.isAuthChecked = true; // Помечаем, что проверка завершилась (даже если с ошибкой)
+        state.user = null;
+      })
+      // checkUserAuth
+      .addCase(checkUserAuth.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(checkUserAuth.fulfilled, (state) => {
+        state.isLoading = false;
       })
       .addCase(checkUserAuth.rejected, (state) => {
-        state.loading = false;
+        state.isLoading = false;
+        state.isAuth = false;
+        state.isAuthChecked = true;
+      })
+      // loginUser (логин)
+      .addCase(loginUser.fulfilled, (state, action) => {
+        state.isAuth = true;
+        state.isAuthChecked = true;
+        state.user = action.payload.user;
+      })
+      .addCase(loginUser.rejected, (state) => {
+        state.isAuth = false;
+        state.isAuthChecked = true; // Нужно обязательно ставить true, иначе бесконечный прелоадер!
+        state.user = null;
+      })
+      // registerUser (регистрация)
+      .addCase(registerUser.fulfilled, (state, action) => {
+        state.isAuth = true;
+        state.isAuthChecked = true;
+        state.user = action.payload.user;
+      })
+      .addCase(registerUser.rejected, (state) => {
         state.isAuth = false;
         state.isAuthChecked = true;
         state.user = null;
       })
-      .addCase(loginUser.fulfilled, (state, action) => {
-        state.isAuth = true;
-        state.user = action.payload;
-      })
-      .addCase(registerUser.fulfilled, (state, action) => {
-        state.isAuth = true;
-        state.user = action.payload;
-      })
+      // logoutUser (выход)
       .addCase(logoutUser.fulfilled, (state) => {
         state.isAuth = false;
+        state.isAuthChecked = true;
         state.user = null;
       })
+      // updateUser (обновление профиля)
       .addCase(updateUser.fulfilled, (state, action) => {
-        state.user = action.payload;
+        state.user = action.payload.user;
       });
   }
 });

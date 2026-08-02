@@ -1,10 +1,7 @@
 // src/components/ui/profile-ui/profile-ui.tsx
 import { FC, SyntheticEvent } from 'react';
 import { ProfileUIProps } from './type';
-import {
-  Button,
-  Input
-} from '@ya.praktikum/react-developer-burger-ui-components';
+import { Button, Input } from '@zlden/react-developer-burger-ui-components';
 import styles from './profile-ui.module.css';
 
 export const ProfileUI: FC<ProfileUIProps> = ({
