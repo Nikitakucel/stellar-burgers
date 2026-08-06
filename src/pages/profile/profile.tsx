@@ -1,4 +1,3 @@
-// src/pages/profile/profile.tsx
 import { SyntheticEvent, useEffect, useState } from 'react';
 import { useDispatch, useSelector } from '../../services/store';
 import { updateUser, logoutUser } from '../../services/slices/userSlice';
@@ -46,7 +45,16 @@ export const Profile = () => {
     if (user?.email !== formValue.email) updatedData.email = formValue.email;
     if (formValue.password !== '') updatedData.password = formValue.password;
 
-    dispatch(updateUser(updatedData));
+    dispatch(updateUser(updatedData))
+      .unwrap()
+      .then(() => {
+        // После успешного сохранения очищаем поле пароля
+        setFormValue((prev) => ({ ...prev, password: '' }));
+      })
+      .catch((err) => {
+        console.error('Ошибка обновления профиля:', err);
+        // Здесь можно показать пользователю уведомление об ошибке
+      });
   };
 
   // 6. Обработчик отмены (возвращает исходные значения)
@@ -79,7 +87,7 @@ export const Profile = () => {
       handleCancel={handleCancel}
       handleSubmit={handleSubmit}
       handleInputChange={handleInputChange}
-      handleLogout={handleLogout} // <-- Передаем выход в UI
+      handleLogout={handleLogout}
     />
   );
 };

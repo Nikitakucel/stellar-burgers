@@ -1,4 +1,4 @@
-import React, { FC } from 'react';
+import { FC } from 'react';
 import {
   Button,
   ConstructorElement,
@@ -16,9 +16,11 @@ export const BurgerConstructorUI: FC<BurgerConstructorUIProps> = ({
   price,
   orderModalData,
   onOrderClick,
-  closeOrderModal
+  closeOrderModal,
+  isAuth // <--- Принимаем isAuth из пропсов
 }) => (
   <section className={styles.burger_constructor}>
+    {/* Верхняя булка */}
     {constructorItems.bun ? (
       <div className={`${styles.element} mb-4 mr-4`}>
         <ConstructorElement
@@ -33,9 +35,11 @@ export const BurgerConstructorUI: FC<BurgerConstructorUIProps> = ({
       <div
         className={`${styles.noBuns} ${styles.noBunsTop} ml-8 mb-4 mr-5 text text_type_main-default`}
       >
-        Выберите булки
+        Перетяните булочку сюда (верх)
       </div>
     )}
+
+    {/* Начинки */}
     <ul className={styles.elements}>
       {constructorItems.ingredients.length > 0 ? (
         constructorItems.ingredients.map(
@@ -52,10 +56,12 @@ export const BurgerConstructorUI: FC<BurgerConstructorUIProps> = ({
         <div
           className={`${styles.noBuns} ml-8 mb-4 mr-5 text text_type_main-default`}
         >
-          Выберите начинку
+          Перетяните начинку сюда
         </div>
       )}
     </ul>
+
+    {/* Нижняя булка */}
     {constructorItems.bun ? (
       <div className={`${styles.element} mt-4 mr-4`}>
         <ConstructorElement
@@ -70,9 +76,11 @@ export const BurgerConstructorUI: FC<BurgerConstructorUIProps> = ({
       <div
         className={`${styles.noBuns} ${styles.noBunsBottom} ml-8 mb-4 mr-5 text text_type_main-default`}
       >
-        Выберите булки
+        Перетяните булочку сюда (низ)
       </div>
     )}
+
+    {/* Итоговая стоимость и кнопка */}
     <div className={`${styles.total} mt-10 mr-4`}>
       <div className={`${styles.cost} mr-10`}>
         <p className={`text ${styles.text} mr-2`}>{price}</p>
@@ -82,9 +90,12 @@ export const BurgerConstructorUI: FC<BurgerConstructorUIProps> = ({
         htmlType='button'
         type='primary'
         size='large'
-        children='Оформить заказ'
         onClick={onOrderClick}
-      />
+        disabled={!constructorItems.bun || orderRequest}
+      >
+        {/* Используем isAuth из пропсов для смены текста */}
+        {isAuth ? 'Оформить заказ' : 'Войти в аккаунт'}
+      </Button>
     </div>
 
     {orderRequest && (

@@ -7,6 +7,7 @@ import {
   updateUserApi
 } from '../../utils/burger-api';
 import { TUser } from '../../utils/types';
+import { setCookie, deleteCookie, getCookie } from '../../utils/cookie'; // Добавили импорт кук
 
 export const getUser = createAsyncThunk('user/getUser', getUserApi);
 export const loginUser = createAsyncThunk('user/loginUser', loginUserApi);
@@ -17,10 +18,14 @@ export const registerUser = createAsyncThunk(
 export const logoutUser = createAsyncThunk('user/logoutUser', logoutApi);
 export const updateUser = createAsyncThunk('user/updateUser', updateUserApi);
 
-// Экшен для проверки авторизации, который используется в app.tsx
 export const checkUserAuth = createAsyncThunk(
   'user/checkUserAuth',
   async (_, { dispatch }) => {
+    // Сначала проверяем, есть ли токен в куках. Если нет — сразу завершаем проверку
+    const token = getCookie('accessToken');
+    if (!token) {
+      return false;
+    }
     try {
       await dispatch(getUser()).unwrap();
       return true;
@@ -30,7 +35,6 @@ export const checkUserAuth = createAsyncThunk(
   }
 );
 
-// Добавляем оба поля: isAuth (для конструктора) и isAuthChecked (для защищенных роутов)
 const initialState: {
   user: TUser | null;
   isAuth: boolean;
@@ -49,20 +53,20 @@ const userSlice = createSlice({
   reducers: {},
   extraReducers: (builder) => {
     builder
-      // getUser (получение данных юзера)
+      // getUser
       .addCase(getUser.pending, (state) => {
         state.isLoading = true;
       })
       .addCase(getUser.fulfilled, (state, action) => {
         state.isLoading = false;
         state.isAuth = true;
-        state.isAuthChecked = true; // Помечаем, что проверка прошла
+        state.isAuthChecked = true;
         state.user = action.payload.user;
       })
       .addCase(getUser.rejected, (state) => {
         state.isLoading = false;
         state.isAuth = false;
-        state.isAuthChecked = true; // Помечаем, что проверка завершилась (даже если с ошибкой)
+        state.isAuthChecked = true;
         state.user = null;
       })
       // checkUserAuth
@@ -71,21 +75,25 @@ const userSlice = createSlice({
       })
       .addCase(checkUserAuth.fulfilled, (state) => {
         state.isLoading = false;
+        state.isAuthChecked = true; // ОБЯЗАТЕЛЬНО ставим true, чтобы снять прелоадер
       })
       .addCase(checkUserAuth.rejected, (state) => {
         state.isLoading = false;
         state.isAuth = false;
-        state.isAuthChecked = true;
+        state.isAuthChecked = true; // ОБЯЗАТЕЛЬНО ставим true, чтобы снять прелоадер
       })
       // loginUser (логин)
       .addCase(loginUser.fulfilled, (state, action) => {
         state.isAuth = true;
         state.isAuthChecked = true;
         state.user = action.payload.user;
+        // СОХРАНЯЕМ ТОКЕНЫ ПРИ ВХОДЕ
+        localStorage.setItem('refreshToken', action.payload.refreshToken);
+        setCookie('accessToken', action.payload.accessToken);
       })
       .addCase(loginUser.rejected, (state) => {
         state.isAuth = false;
-        state.isAuthChecked = true; // Нужно обязательно ставить true, иначе бесконечный прелоадер!
+        state.isAuthChecked = true;
         state.user = null;
       })
       // registerUser (регистрация)
@@ -93,6 +101,9 @@ const userSlice = createSlice({
         state.isAuth = true;
         state.isAuthChecked = true;
         state.user = action.payload.user;
+        // СОХРАНЯЕМ ТОКЕНЫ ПРИ РЕГИСТРАЦИИ
+        localStorage.setItem('refreshToken', action.payload.refreshToken);
+        setCookie('accessToken', action.payload.accessToken);
       })
       .addCase(registerUser.rejected, (state) => {
         state.isAuth = false;
@@ -104,6 +115,9 @@ const userSlice = createSlice({
         state.isAuth = false;
         state.isAuthChecked = true;
         state.user = null;
+        // УДАЛЯЕМ ТОКЕНЫ ПРИ ВЫХОДЕ
+        localStorage.removeItem('refreshToken');
+        deleteCookie('accessToken');
       })
       // updateUser (обновление профиля)
       .addCase(updateUser.fulfilled, (state, action) => {

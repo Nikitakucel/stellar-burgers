@@ -1,11 +1,13 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { TConstructorIngredient, TIngredient } from '../../utils/types';
+import { TIngredient } from '../../utils/types';
 import { v4 as uuidv4 } from 'uuid';
 
-interface BurgerConstructorState {
-  bun: TConstructorIngredient | null;
+export type TConstructorIngredient = TIngredient & { id: string };
+
+type BurgerConstructorState = {
+  bun: TIngredient | null;
   ingredients: TConstructorIngredient[];
-}
+};
 
 const initialState: BurgerConstructorState = {
   bun: null,
@@ -16,31 +18,38 @@ const burgerConstructorSlice = createSlice({
   name: 'burgerConstructor',
   initialState,
   reducers: {
-    // Универсальный экшен для добавления любого ингредиента
-    addIngredients: (state, action: PayloadAction<TIngredient>) => {
-      const ingredient = action.payload;
-      const uniqueIngredient: TConstructorIngredient = {
-        ...ingredient,
-        id: uuidv4() // добавляем уникальный id, необходимый для конструктора
-      };
-      if (ingredient.type === 'bun') {
-        state.bun = uniqueIngredient;
-      } else {
-        state.ingredients.push(uniqueIngredient);
-      }
+    // Добавляем prepare для генерации id ДО попадания в редьюсер
+    addIngredients: {
+      reducer: (state, action: PayloadAction<TConstructorIngredient>) => {
+        const ingredient = action.payload;
+        if (ingredient.type === 'bun') {
+          state.bun = ingredient;
+        } else {
+          state.ingredients.push(ingredient);
+        }
+      },
+      prepare: (ingredient: TIngredient) => ({
+        payload: { ...ingredient, id: uuidv4() }
+      })
     },
     removeIngredient: (state, action: PayloadAction<string>) => {
       state.ingredients = state.ingredients.filter(
-        (ingredient) => ingredient.id !== action.payload
+        (item) => item.id !== action.payload
       );
     },
     moveIngredient: (
       state,
-      action: PayloadAction<{ fromIndex: number; toIndex: number }>
+      action: PayloadAction<{ id: string; direction: 'up' | 'down' }>
     ) => {
-      const { fromIndex, toIndex } = action.payload;
-      const [movedIngredient] = state.ingredients.splice(fromIndex, 1);
-      state.ingredients.splice(toIndex, 0, movedIngredient);
+      const { id, direction } = action.payload;
+      const index = state.ingredients.findIndex((item) => item.id === id);
+      if (index !== -1) {
+        const newIndex = direction === 'up' ? index - 1 : index + 1;
+        if (newIndex >= 0 && newIndex < state.ingredients.length) {
+          const [removed] = state.ingredients.splice(index, 1);
+          state.ingredients.splice(newIndex, 0, removed);
+        }
+      }
     },
     clearConstructor: (state) => {
       state.bun = null;

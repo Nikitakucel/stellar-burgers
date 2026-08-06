@@ -1,4 +1,5 @@
 import { FC, memo } from 'react';
+import { Tab } from '@zlden/react-developer-burger-ui-components'; // Импортируем Tab из правильной библиотеки
 
 import { BurgerIngredientsUIProps } from './type';
 import { IngredientsCategory } from '../../ingredients-category';
@@ -23,36 +24,31 @@ export const BurgerIngredientsUI: FC<BurgerIngredientsUIProps> = memo(
     <section className={styles.container}>
       <h1 className='text text_type_main-large mt-10 mb-5'>Соберите бургер</h1>
 
+      {/* Меняем ручные кнопки на компонент Tab */}
       <div className={styles.tabs}>
-        <button
-          className={`text text_type_main-default ${
-            currentTab === 'bun' ? styles.active : ''
-          }`}
+        <Tab
+          value='bun'
+          active={currentTab === 'bun'}
           onClick={() => onTabClick('bun')}
-          type='button'
         >
           Булки
-        </button>
+        </Tab>
 
-        <button
-          className={`text text_type_main-default ${
-            currentTab === 'sauce' ? styles.active : ''
-          }`}
+        <Tab
+          value='sauce'
+          active={currentTab === 'sauce'}
           onClick={() => onTabClick('sauce')}
-          type='button'
         >
           Соусы
-        </button>
+        </Tab>
 
-        <button
-          className={`text text_type_main-default ${
-            currentTab === 'main' ? styles.active : ''
-          }`}
+        <Tab
+          value='main'
+          active={currentTab === 'main'}
           onClick={() => onTabClick('main')}
-          type='button'
         >
           Начинки
-        </button>
+        </Tab>
       </div>
 
       <div className={styles.content}>

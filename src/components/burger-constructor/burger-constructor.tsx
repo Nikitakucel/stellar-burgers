@@ -14,8 +14,9 @@ export const BurgerConstructor: FC = () => {
   const { order, loading: orderRequest } = useSelector((state) => state.order);
   const { isAuth } = useSelector((state) => state.user);
 
+  // Исправляем ошибку типов, явно приведя bun к нужному типу
   const constructorItems = {
-    bun,
+    bun: bun as TConstructorIngredient | null,
     ingredients
   };
 
@@ -46,9 +47,14 @@ export const BurgerConstructor: FC = () => {
       bun._id
     ];
 
-    dispatch(createOrder(ingredientIds)).then(() => {
-      dispatch(clearConstructor());
-    });
+    dispatch(createOrder(ingredientIds))
+      .unwrap()
+      .then(() => {
+        dispatch(clearConstructor());
+      })
+      .catch((err) => {
+        console.error('Ошибка при создании заказа:', err);
+      });
   };
 
   const closeOrderModal = () => {
@@ -73,6 +79,7 @@ export const BurgerConstructor: FC = () => {
       orderModalData={orderModalData}
       onOrderClick={onOrderClick}
       closeOrderModal={closeOrderModal}
+      isAuth={isAuth} // <-- Не забыл передать isAuth (кнопка сменит текст!)
     />
   );
 };

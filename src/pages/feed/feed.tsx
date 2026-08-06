@@ -2,20 +2,24 @@ import { useEffect } from 'react';
 import { useDispatch, useSelector } from '../../services/store';
 import { fetchFeed } from '../../services/slices/feedSlice';
 import { FeedUI } from '@ui-pages';
+import { Preloader } from '@ui'; // Добавили импорт прелоадера
 
 export const Feed = () => {
   const dispatch = useDispatch();
-  const { orders } = useSelector((state) => state.feed);
+  const { orders, loading } = useSelector((state) => state.feed);
 
   useEffect(() => {
-    // Вместо wsConnect просто вызываем обычный get-запрос
     dispatch(fetchFeed());
   }, [dispatch]);
 
   const handleGetFeeds = () => {
-    // При нажатии на кнопку обновления вызываем тот же экшен
     dispatch(fetchFeed());
   };
+
+  // Пока идет загрузка - показываем прелоадер, а не пустой экран
+  if (loading && !orders.length) {
+    return <Preloader />;
+  }
 
   return <FeedUI orders={orders} handleGetFeeds={handleGetFeeds} />;
 };
