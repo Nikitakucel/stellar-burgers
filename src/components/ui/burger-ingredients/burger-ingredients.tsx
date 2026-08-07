@@ -1,9 +1,7 @@
 import { FC, memo } from 'react';
-import { Tab } from '@zlden/react-developer-burger-ui-components'; // Импортируем Tab из правильной библиотеки
-
+import { Tab } from '@zlden/react-developer-burger-ui-components';
 import { BurgerIngredientsUIProps } from './type';
 import { IngredientsCategory } from '../../ingredients-category';
-
 import styles from './burger-ingredients.module.css';
 
 export const BurgerIngredientsUI: FC<BurgerIngredientsUIProps> = memo(
@@ -23,8 +21,6 @@ export const BurgerIngredientsUI: FC<BurgerIngredientsUIProps> = memo(
   }) => (
     <section className={styles.container}>
       <h1 className='text text_type_main-large mt-10 mb-5'>Соберите бургер</h1>
-
-      {/* Меняем ручные кнопки на компонент Tab */}
       <div className={styles.tabs}>
         <Tab
           value='bun'
@@ -33,7 +29,6 @@ export const BurgerIngredientsUI: FC<BurgerIngredientsUIProps> = memo(
         >
           Булки
         </Tab>
-
         <Tab
           value='sauce'
           active={currentTab === 'sauce'}
@@ -41,7 +36,6 @@ export const BurgerIngredientsUI: FC<BurgerIngredientsUIProps> = memo(
         >
           Соусы
         </Tab>
-
         <Tab
           value='main'
           active={currentTab === 'main'}
@@ -50,7 +44,6 @@ export const BurgerIngredientsUI: FC<BurgerIngredientsUIProps> = memo(
           Начинки
         </Tab>
       </div>
-
       <div className={styles.content}>
         <IngredientsCategory
           title='Булки'
@@ -58,14 +51,12 @@ export const BurgerIngredientsUI: FC<BurgerIngredientsUIProps> = memo(
           ingredients={buns}
           ref={bunsRef}
         />
-
         <IngredientsCategory
           title='Соусы'
           titleRef={titleSaucesRef}
           ingredients={sauces}
           ref={saucesRef}
         />
-
         <IngredientsCategory
           title='Начинки'
           titleRef={titleMainRef}

@@ -1,4 +1,81 @@
-/* src/components/ui/profile-ui/profile-ui.module.css */
+.container {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  gap: 60px;
+  margin-top: 120px;
+  width: 100%;
+  max-width: 1280px;
+}
+
+.menuList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  width: 320px;
+  display: flex;
+  flex-direction: column;
+}
+
+.menuItem {
+  margin: 18px 0;
+}
+
+.link {
+  color: #8585ad;
+  font-family: 'Jet Brains Mono', sans-serif;
+  font-size: 24px;
+  line-height: 30px;
+  font-weight: 700;
+  text-decoration: none;
+  cursor: pointer;
+  transition: color 0.3s;
+  display: block;
+}
+
+.link:hover {
+  color: #f2f2f3;
+}
+
+.link_active {
+  color: #f2f2f3;
+  font-family: 'Jet Brains Mono', sans-serif;
+  font-size: 24px;
+  line-height: 30px;
+  font-weight: 700;
+  text-decoration: none;
+  cursor: default;
+}
+
+/* --- ИСПРАВЛЕННЫЙ КЛАСС ДЛЯ ВЫХОДА --- */
+.logoutButton {
+  margin: 0; /* Убрали лишний отступ в 80px! Теперь он ровно под Историей */
+  color: #8585ad;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-family: 'Jet Brains Mono', sans-serif;
+  font-size: 24px; /* Вернули размер шрифта, как у остальных ссылок */
+  line-height: 30px;
+  font-weight: 700;
+  transition: color 0.3s;
+  padding: 0;
+  text-align: left;
+}
+
+.logoutButton:hover {
+  color: #f2f2f3;
+}
+
+/* Текст-подсказка в самом низу меню */
+.text {
+  color: #8585ad;
+  opacity: 0.4;
+  font-size: 16px;
+  line-height: 24px;
+  margin-top: 80px; /* ЭТОТ ОТСТУП ОСТАЁТСЯ ТОЛЬКО У ТЕКСТА, А НЕ У КНОПКИ! */
+}
+
 .form {
   display: flex;
   flex-direction: column;
@@ -17,20 +94,4 @@
   justify-content: flex-end;
   gap: 20px;
   width: 100%;
-}
-
-.logoutButton {
-  margin-top: 80px;
-  color: #8585ad;
-  background: transparent;
-  border: none;
-  cursor: pointer;
-  font-family: 'Jet Brains Mono', sans-serif;
-  font-size: 16px;
-  line-height: 24px;
-  transition: color 0.3s;
-}
-
-.logoutButton:hover {
-  color: #f2f2f3;
 }

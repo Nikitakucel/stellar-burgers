@@ -8,8 +8,6 @@ export const ProfileOrders = () => {
   const { orders } = useSelector((state) => state.profileOrders);
 
   useEffect(() => {
-    // Вместо wsConnect вызываем обычный get-запрос с авторизацией
-    // Токен подставится автоматически внутри fetchProfileOrders, который вызывает getOrdersApi
     dispatch(fetchProfileOrders());
   }, [dispatch]);
 

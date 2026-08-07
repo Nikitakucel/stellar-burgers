@@ -1,11 +1,9 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { TIngredient } from '../../utils/types';
+import { TIngredient, TConstructorIngredient } from '../../utils/types'; // Импортируем оба типа из одного места
 import { v4 as uuidv4 } from 'uuid';
 
-export type TConstructorIngredient = TIngredient & { id: string };
-
 type BurgerConstructorState = {
-  bun: TIngredient | null;
+  bun: TConstructorIngredient | null; // <--- ИЗМЕНЕНО: теперь правильный тип с id
   ingredients: TConstructorIngredient[];
 };
 

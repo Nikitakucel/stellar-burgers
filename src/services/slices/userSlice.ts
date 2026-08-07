@@ -4,24 +4,50 @@ import {
   loginUserApi,
   registerUserApi,
   logoutApi,
-  updateUserApi
+  updateUserApi,
+  TLoginData,
+  TRegisterData
 } from '../../utils/burger-api';
 import { TUser } from '../../utils/types';
-import { setCookie, deleteCookie, getCookie } from '../../utils/cookie'; // Добавили импорт кук
+import { setCookie, deleteCookie, getCookie } from '../../utils/cookie';
 
 export const getUser = createAsyncThunk('user/getUser', getUserApi);
-export const loginUser = createAsyncThunk('user/loginUser', loginUserApi);
+
+// Логин — сохраняем токены прямо в thunk
+export const loginUser = createAsyncThunk(
+  'user/loginUser',
+  async (data: TLoginData) => {
+    const res = await loginUserApi(data);
+    setCookie('accessToken', res.accessToken);
+    localStorage.setItem('refreshToken', res.refreshToken);
+    return res;
+  }
+);
+
+// Регистрация — сохраняем токены прямо в thunk
 export const registerUser = createAsyncThunk(
   'user/registerUser',
-  registerUserApi
+  async (data: TRegisterData) => {
+    const res = await registerUserApi(data);
+    setCookie('accessToken', res.accessToken);
+    localStorage.setItem('refreshToken', res.refreshToken);
+    return res;
+  }
 );
-export const logoutUser = createAsyncThunk('user/logoutUser', logoutApi);
+
+// Выход — удаляем токены прямо в thunk
+export const logoutUser = createAsyncThunk('user/logoutUser', async () => {
+  const res = await logoutApi();
+  deleteCookie('accessToken');
+  localStorage.removeItem('refreshToken');
+  return res;
+});
+
 export const updateUser = createAsyncThunk('user/updateUser', updateUserApi);
 
 export const checkUserAuth = createAsyncThunk(
   'user/checkUserAuth',
   async (_, { dispatch }) => {
-    // Сначала проверяем, есть ли токен в куках. Если нет — сразу завершаем проверку
     const token = getCookie('accessToken');
     if (!token) {
       return false;
@@ -75,51 +101,45 @@ const userSlice = createSlice({
       })
       .addCase(checkUserAuth.fulfilled, (state) => {
         state.isLoading = false;
-        state.isAuthChecked = true; // ОБЯЗАТЕЛЬНО ставим true, чтобы снять прелоадер
+        state.isAuthChecked = true;
       })
       .addCase(checkUserAuth.rejected, (state) => {
         state.isLoading = false;
         state.isAuth = false;
-        state.isAuthChecked = true; // ОБЯЗАТЕЛЬНО ставим true, чтобы снять прелоадер
+        state.isAuthChecked = true;
       })
-      // loginUser (логин)
+      // loginUser
       .addCase(loginUser.fulfilled, (state, action) => {
         state.isAuth = true;
         state.isAuthChecked = true;
         state.user = action.payload.user;
-        // СОХРАНЯЕМ ТОКЕНЫ ПРИ ВХОДЕ
-        localStorage.setItem('refreshToken', action.payload.refreshToken);
-        setCookie('accessToken', action.payload.accessToken);
+        // Токены уже сохранены в thunk, здесь только стейт!
       })
       .addCase(loginUser.rejected, (state) => {
         state.isAuth = false;
         state.isAuthChecked = true;
         state.user = null;
       })
-      // registerUser (регистрация)
+      // registerUser
       .addCase(registerUser.fulfilled, (state, action) => {
         state.isAuth = true;
         state.isAuthChecked = true;
         state.user = action.payload.user;
-        // СОХРАНЯЕМ ТОКЕНЫ ПРИ РЕГИСТРАЦИИ
-        localStorage.setItem('refreshToken', action.payload.refreshToken);
-        setCookie('accessToken', action.payload.accessToken);
+        // Токены уже сохранены в thunk!
       })
       .addCase(registerUser.rejected, (state) => {
         state.isAuth = false;
         state.isAuthChecked = true;
         state.user = null;
       })
-      // logoutUser (выход)
+      // logoutUser
       .addCase(logoutUser.fulfilled, (state) => {
         state.isAuth = false;
         state.isAuthChecked = true;
         state.user = null;
-        // УДАЛЯЕМ ТОКЕНЫ ПРИ ВЫХОДЕ
-        localStorage.removeItem('refreshToken');
-        deleteCookie('accessToken');
+        // Токены уже удалены в thunk!
       })
-      // updateUser (обновление профиля)
+      // updateUser
       .addCase(updateUser.fulfilled, (state, action) => {
         state.user = action.payload.user;
       });

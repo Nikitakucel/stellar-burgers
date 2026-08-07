@@ -1,4 +1,3 @@
-// src/pages/register/register.tsx
 import { FC, SyntheticEvent, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { RegisterUI } from '@ui-pages';
@@ -12,19 +11,25 @@ export const Register: FC = () => {
   const [userName, setUserName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
 
   const handleSubmit = (e: SyntheticEvent) => {
     e.preventDefault();
-    // Отправляем данные на сервер через Redux
-    dispatch(registerUser({ email, password, name: userName })).then(() => {
-      // После успешной регистрации переходим на главную
-      navigate('/');
-    });
+    setError('');
+
+    dispatch(registerUser({ email, password, name: userName }))
+      .unwrap() // Важно: без unwrap() .then сработает даже при ошибке!
+      .then(() => {
+        navigate('/');
+      })
+      .catch((err) => {
+        setError(err.message || 'Ошибка регистрации. Проверьте данные.');
+      });
   };
 
   return (
     <RegisterUI
-      errorText=''
+      errorText={error}
       email={email}
       userName={userName}
       password={password}

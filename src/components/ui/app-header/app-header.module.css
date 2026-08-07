@@ -1,6 +1,7 @@
 .header {
   background-color: var(--background);
 }
+
 .menu {
   display: flex;
   align-items: center;
@@ -11,21 +12,43 @@
 
 .menu_part_left {
   display: flex;
+  align-items: center;
   flex-basis: 35%;
 }
 
 .link {
   display: flex;
+  align-items: center;
   text-decoration: none;
   color: var(--text-inactive-color);
+  padding: 16px 20px;
+  border-radius: 40px;
+  transition: all 0.2s ease-in-out;
 }
 
-.link_active {
+.link:hover {
   color: var(--text-primary-color);
+}
+
+/* ВРЕМЕННЫЙ ЭФФЕКТ ПРИ НАЖАТИИ (появляется и сразу исчезает при отпускании) */
+.link:active {
+  background-color: var(--background-element);
+  color: var(--text-primary-color);
+}
+
+/* ПОСТОЯННЫЙ ЭФФЕКТ (когда страница активна) - УБРАЛИ ФОН, ЧТОБЫ НЕ ЗАЛИПАЛО */
+.link_active {
+  display: flex;
+  align-items: center;
+  color: var(--text-primary-color); /* Текст остается белым */
+  padding: 16px 20px;
+  text-decoration: none;
+  /* ФОН И СКРУГЛЕНИЕ УБРАНЫ! */
 }
 
 .link_position_last {
   display: flex;
+  align-items: center;
   justify-content: flex-end;
   flex-basis: 35%;
 }
