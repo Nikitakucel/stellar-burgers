@@ -1,8 +1,9 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { orderBurgerApi } from '../../utils/burger-api';
+import { TOrder } from '@utils-types';
+import { orderBurgerApi, getOrderByNumberApi } from '../../utils/burger-api';
 
 interface OrderState {
-  order: { number: number } | null;
+  order: TOrder | null;
   loading: boolean;
   error: string | null;
 }
@@ -13,16 +14,34 @@ const initialState: OrderState = {
   error: null
 };
 
+// ДОБАВЛЕН ТРЕТИЙ ДЖЕНЕРИК: { rejectValue: string }
 export const createOrder = createAsyncThunk<
-  { number: number },
+  TOrder,
   string[],
   { rejectValue: string }
->('order/create', async (data, { rejectWithValue }) => {
+>('order/create', async (ingredientsIdArray, { rejectWithValue }) => {
   try {
-    const response = await orderBurgerApi(data);
-    return response.order;
-  } catch {
-    return rejectWithValue('Ошибка оформления заказа');
+    const response = await orderBurgerApi(ingredientsIdArray);
+    return {
+      ...response.order,
+      ingredients: ingredientsIdArray
+    } as TOrder;
+  } catch (error: any) {
+    return rejectWithValue(error.message || 'Ошибка оформления заказа');
+  }
+});
+
+// ДОБАВЛЕН ТРЕТИЙ ДЖЕНЕРИК: { rejectValue: string }
+export const fetchOrderByNumber = createAsyncThunk<
+  TOrder,
+  number,
+  { rejectValue: string }
+>('order/fetchByNumber', async (number, { rejectWithValue }) => {
+  try {
+    const order = await getOrderByNumberApi(number);
+    return order;
+  } catch (error: any) {
+    return rejectWithValue(error.message || 'Заказ не найден');
   }
 });
 
@@ -38,6 +57,7 @@ const orderSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
+      // Обработка createOrder
       .addCase(createOrder.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -49,7 +69,22 @@ const orderSlice = createSlice({
       })
       .addCase(createOrder.rejected, (state, action) => {
         state.loading = false;
+        // action.payload теперь точно строка или undefined, ставим fallback через ??
         state.error = action.payload ?? 'Ошибка оформления заказа';
+      })
+      // Обработка fetchOrderByNumber
+      .addCase(fetchOrderByNumber.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchOrderByNumber.fulfilled, (state, action) => {
+        state.loading = false;
+        state.order = action.payload;
+        state.error = null;
+      })
+      .addCase(fetchOrderByNumber.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload ?? 'Заказ не найден';
       });
   }
 });

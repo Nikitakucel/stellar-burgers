@@ -8,7 +8,6 @@
 
 .elements {
   min-height: 100px;
-
   overflow-y: scroll;
   list-style-type: none;
   margin: 0;
@@ -58,10 +57,11 @@
   border-radius: var(--bottom-constructor-item-border-radius);
 }
 
+/* ✅ ВОТ ЕДИНСТВЕННОЕ, ЧТО МЫ МЕНЯЕМ: убираем justify-content: flex-end */
 .element {
   display: flex;
   align-items: center;
-  justify-content: flex-end;
+  width: 100%; /* Растягиваем элемент на всю ширину контейнера */
 }
 
 .element:last-child {

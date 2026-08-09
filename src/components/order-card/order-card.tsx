@@ -1,5 +1,5 @@
 import { FC, memo, useMemo } from 'react';
-import { useLocation, Link } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import { useSelector } from '../../services/store';
 import { OrderCardProps } from './type';
 import { TIngredient } from '@utils-types';
@@ -24,15 +24,13 @@ export const OrderCard: FC<OrderCardProps> = memo(({ order }) => {
     );
 
     const total = ingredientsInfo.reduce((acc, item) => acc + item.price, 0);
-
     const ingredientsToShow = ingredientsInfo.slice(0, maxIngredients);
-
     const remains =
       ingredientsInfo.length > maxIngredients
         ? ingredientsInfo.length - maxIngredients
         : 0;
-
     const date = new Date(order.createdAt);
+
     return {
       ...order,
       ingredientsInfo,
@@ -45,13 +43,12 @@ export const OrderCard: FC<OrderCardProps> = memo(({ order }) => {
 
   if (!orderInfo) return null;
 
+  // Убрали внешний <Link>!
   return (
-    <Link to={`/feed/${order.number}`} className='link'>
-      <OrderCardUI
-        orderInfo={orderInfo}
-        maxIngredients={maxIngredients}
-        locationState={{ background: location }}
-      />
-    </Link>
+    <OrderCardUI
+      orderInfo={orderInfo}
+      maxIngredients={maxIngredients}
+      locationState={{ background: location }}
+    />
   );
 });

@@ -187,3 +187,12 @@ export const getOrdersApi = () =>
     if (data?.success) return data;
     return Promise.reject(data);
   });
+
+// ИСПРАВЛЕННАЯ ФУНКЦИЯ: убраны {} и return
+export const getOrderByNumberApi = (number: number) =>
+  fetch(`${BURGER_API_URL}/orders/${number}`)
+    .then((res) => checkResponse<TServerResponse<{ orders: TOrder[] }>>(res))
+    .then((data) => {
+      if (data?.success) return data.orders[0];
+      return Promise.reject(data);
+    });

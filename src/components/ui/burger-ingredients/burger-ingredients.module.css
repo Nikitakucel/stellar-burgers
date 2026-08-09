@@ -1,25 +1,36 @@
-.container {
-  width: 600px;
+.burger_ingredients {
+  font-family: 'Jet Brains Mono';
+  color: #f2f2f3;
+  max-width: 600px;
+  display: flex;
+  flex-direction: column;
 }
 
-.tabs {
-  display: flex;
+p {
+  margin: 0;
+}
+
+.tab {
+  width: 120px;
 }
 
 .content {
-  height: 716px;
-  overflow-y: auto;
+  overflow-y: scroll;
 }
 
-/* Стили для скроллбара (по желанию, но они есть в стартере) */
-.content::-webkit-scrollbar {
-  width: 8px;
+/* ВОТ ЗДЕСЬ ИСПРАВЛЕНИЕ */
+.menu {
+  display: flex;
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+  justify-content: center; /* Сдвигает вкладки к центру */
+  gap: 8px; /* Делает расстояние между ними аккуратным, как в макете */
 }
-.content::-webkit-scrollbar-track {
-  background: #2f2f37;
-}
-.content::-webkit-scrollbar-thumb {
-  background: #8585ad;
-  border: 3px solid #2f2f37;
-  border-radius: 6px;
+
+.categories {
+  font-style: normal;
+  font-weight: bold;
+  font-size: 24px;
+  line-height: 30px;
 }

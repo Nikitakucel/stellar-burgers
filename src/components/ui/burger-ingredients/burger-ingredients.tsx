@@ -1,8 +1,9 @@
-import { FC, memo } from 'react';
+import React, { FC, memo } from 'react';
 import { Tab } from '@zlden/react-developer-burger-ui-components';
-import { BurgerIngredientsUIProps } from './type';
-import { IngredientsCategory } from '../../ingredients-category';
+
 import styles from './burger-ingredients.module.css';
+import { BurgerIngredientsUIProps } from './type';
+import { IngredientsCategory } from '@components';
 
 export const BurgerIngredientsUI: FC<BurgerIngredientsUIProps> = memo(
   ({
@@ -16,54 +17,53 @@ export const BurgerIngredientsUI: FC<BurgerIngredientsUIProps> = memo(
     bunsRef,
     mainsRef,
     saucesRef,
-    onTabClick,
-    onIngredientClick
+    onTabClick
   }) => (
-    <section className={styles.container}>
-      <h1 className='text text_type_main-large mt-10 mb-5'>Соберите бургер</h1>
-      <div className={styles.tabs}>
-        <Tab
-          value='bun'
-          active={currentTab === 'bun'}
-          onClick={() => onTabClick('bun')}
-        >
-          Булки
-        </Tab>
-        <Tab
-          value='sauce'
-          active={currentTab === 'sauce'}
-          onClick={() => onTabClick('sauce')}
-        >
-          Соусы
-        </Tab>
-        <Tab
-          value='main'
-          active={currentTab === 'main'}
-          onClick={() => onTabClick('main')}
-        >
-          Начинки
-        </Tab>
-      </div>
-      <div className={styles.content}>
-        <IngredientsCategory
-          title='Булки'
-          titleRef={titleBunRef}
-          ingredients={buns}
-          ref={bunsRef}
-        />
-        <IngredientsCategory
-          title='Соусы'
-          titleRef={titleSaucesRef}
-          ingredients={sauces}
-          ref={saucesRef}
-        />
-        <IngredientsCategory
-          title='Начинки'
-          titleRef={titleMainRef}
-          ingredients={mains}
-          ref={mainsRef}
-        />
-      </div>
-    </section>
+    <>
+      <section className={styles.burger_ingredients}>
+        <nav>
+          <ul className={styles.menu}>
+            <Tab value='bun' active={currentTab === 'bun'} onClick={onTabClick}>
+              Булки
+            </Tab>
+            {/* <--- МЫ ПОМЕНЯЛИ СОУСЫ И НАЧИНКИ МЕСТАМИ */}
+            <Tab
+              value='sauce'
+              active={currentTab === 'sauce'}
+              onClick={onTabClick}
+            >
+              Соусы
+            </Tab>
+            <Tab
+              value='main'
+              active={currentTab === 'main'}
+              onClick={onTabClick}
+            >
+              Начинки
+            </Tab>
+          </ul>
+        </nav>
+        <div className={styles.content}>
+          <IngredientsCategory
+            title='Булки'
+            titleRef={titleBunRef}
+            ingredients={buns}
+            ref={bunsRef}
+          />
+          <IngredientsCategory
+            title='Соусы'
+            titleRef={titleSaucesRef}
+            ingredients={sauces}
+            ref={saucesRef}
+          />
+          <IngredientsCategory
+            title='Начинки'
+            titleRef={titleMainRef}
+            ingredients={mains}
+            ref={mainsRef}
+          />
+        </div>
+      </section>
+    </>
   )
 );
