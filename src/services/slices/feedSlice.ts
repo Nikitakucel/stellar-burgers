@@ -37,4 +37,14 @@ const feedSlice = createSlice({
   }
 });
 
+// ===== ДОБАВЛЕННЫЕ СЕЛЕКТОРЫ =====
+export const selectFeeds = (state: { feed: typeof initialState }) =>
+  state.feed.orders;
+export const selectTotal = (state: { feed: typeof initialState }) =>
+  state.feed.total;
+export const selectTotalToday = (state: { feed: typeof initialState }) =>
+  state.feed.totalToday;
+export const selectFeedIsLoading = (state: { feed: typeof initialState }) =>
+  state.feed.loading;
+
 export default feedSlice.reducer;
