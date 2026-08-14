@@ -37,7 +37,6 @@ const feedSlice = createSlice({
   }
 });
 
-// ===== ДОБАВЛЕННЫЕ СЕЛЕКТОРЫ =====
 export const selectFeeds = (state: { feed: typeof initialState }) =>
   state.feed.orders;
 export const selectTotal = (state: { feed: typeof initialState }) =>

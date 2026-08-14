@@ -10,6 +10,5 @@ export type ProfileUIProps = {
   handleSubmit: (e: SyntheticEvent) => void;
   handleCancel: (e: SyntheticEvent) => void;
   handleInputChange: (e: ChangeEvent<HTMLInputElement>) => void;
-  handleLogout: () => void; // <--- ДОБАВЛЕНА ЭТА СТРОКА!
   updateUserError?: string;
 };

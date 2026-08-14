@@ -1,9 +1,9 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { TIngredient, TConstructorIngredient } from '../../utils/types'; // Импортируем оба типа из одного места
+import { TIngredient, TConstructorIngredient } from '../../utils/types';
 import { v4 as uuidv4 } from 'uuid';
 
 type BurgerConstructorState = {
-  bun: TConstructorIngredient | null; // <--- ИЗМЕНЕНО: теперь правильный тип с id
+  bun: TConstructorIngredient | null;
   ingredients: TConstructorIngredient[];
 };
 
@@ -16,7 +16,6 @@ const burgerConstructorSlice = createSlice({
   name: 'burgerConstructor',
   initialState,
   reducers: {
-    // Добавляем prepare для генерации id ДО попадания в редьюсер
     addIngredients: {
       reducer: (state, action: PayloadAction<TConstructorIngredient>) => {
         const ingredient = action.payload;

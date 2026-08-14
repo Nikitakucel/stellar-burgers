@@ -1,5 +1,5 @@
 import React, { FC, memo } from 'react';
-import { Link, useLocation } from 'react-router-dom'; // <--- Добавили useLocation
+import { Link, useLocation } from 'react-router-dom';
 import {
   CurrencyIcon,
   FormattedDate
@@ -12,7 +12,7 @@ import { OrderStatus } from '@components';
 
 export const OrderCardUI: FC<OrderCardUIProps> = memo(
   ({ orderInfo, maxIngredients, locationState }) => {
-    const location = useLocation(); // <--- Добавили хук location
+    const location = useLocation();
 
     return (
       <Link
@@ -26,7 +26,6 @@ export const OrderCardUI: FC<OrderCardUIProps> = memo(
             #{String(orderInfo.number).padStart(6, '0')}
           </span>
           <span className='text text_type_main-default text_color_inactive'>
-            {/* ВОТ ОН - МАГИЧЕСКИЙ КОМПОНЕНТ ДАТЫ */}
             <FormattedDate date={orderInfo.date} />
           </span>
         </div>

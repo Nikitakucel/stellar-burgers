@@ -4,17 +4,18 @@ import { orderBurgerApi, getOrderByNumberApi } from '../../utils/burger-api';
 
 interface OrderState {
   order: TOrder | null;
+  orderByNumber: TOrder | null;
   loading: boolean;
   error: string | null;
 }
 
 const initialState: OrderState = {
   order: null,
+  orderByNumber: null,
   loading: false,
   error: null
 };
 
-// ДОБАВЛЕН ТРЕТИЙ ДЖЕНЕРИК: { rejectValue: string }
 export const createOrder = createAsyncThunk<
   TOrder,
   string[],
@@ -31,7 +32,6 @@ export const createOrder = createAsyncThunk<
   }
 });
 
-// ДОБАВЛЕН ТРЕТИЙ ДЖЕНЕРИК: { rejectValue: string }
 export const fetchOrderByNumber = createAsyncThunk<
   TOrder,
   number,
@@ -57,7 +57,6 @@ const orderSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      // Обработка createOrder
       .addCase(createOrder.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -69,17 +68,15 @@ const orderSlice = createSlice({
       })
       .addCase(createOrder.rejected, (state, action) => {
         state.loading = false;
-        // action.payload теперь точно строка или undefined, ставим fallback через ??
         state.error = action.payload ?? 'Ошибка оформления заказа';
       })
-      // Обработка fetchOrderByNumber
       .addCase(fetchOrderByNumber.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
       .addCase(fetchOrderByNumber.fulfilled, (state, action) => {
         state.loading = false;
-        state.order = action.payload;
+        state.orderByNumber = action.payload;
         state.error = null;
       })
       .addCase(fetchOrderByNumber.rejected, (state, action) => {

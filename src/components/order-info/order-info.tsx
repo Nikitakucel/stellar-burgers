@@ -1,5 +1,5 @@
 import { FC, useEffect } from 'react';
-import { useParams, useMatch } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import { useSelector, useDispatch } from '../../services/store';
 import { Preloader } from '../ui/preloader';
 import { OrderInfoUI } from '../ui/order-info';
@@ -12,7 +12,7 @@ export const OrderInfo: FC = () => {
 
   const feedOrders = useSelector((state) => state.feed.orders);
   const profileOrders = useSelector((state) => state.profileOrders.orders);
-  const orderFromStore = useSelector((state) => state.order.order);
+  const orderFromStore = useSelector((state) => state.order.orderByNumber);
 
   const orderData = [...feedOrders, ...profileOrders].find(
     (item) => item.number === Number(number)

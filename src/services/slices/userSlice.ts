@@ -13,7 +13,6 @@ import { setCookie, deleteCookie, getCookie } from '../../utils/cookie';
 
 export const getUser = createAsyncThunk('user/getUser', getUserApi);
 
-// Логин — сохраняем токены прямо в thunk
 export const loginUser = createAsyncThunk(
   'user/loginUser',
   async (data: TLoginData) => {
@@ -24,7 +23,6 @@ export const loginUser = createAsyncThunk(
   }
 );
 
-// Регистрация — сохраняем токены прямо в thunk
 export const registerUser = createAsyncThunk(
   'user/registerUser',
   async (data: TRegisterData) => {
@@ -35,7 +33,6 @@ export const registerUser = createAsyncThunk(
   }
 );
 
-// Выход — удаляем токены прямо в thunk
 export const logoutUser = createAsyncThunk('user/logoutUser', async () => {
   const res = await logoutApi();
   deleteCookie('accessToken');

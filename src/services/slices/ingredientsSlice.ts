@@ -7,7 +7,6 @@ export const fetchIngredients = createAsyncThunk(
   getIngredientsApi
 );
 
-// Чтобы в компонентах не было ошибок, экспортируем его под старым именем
 export const getIngredients = fetchIngredients;
 
 const initialState: {

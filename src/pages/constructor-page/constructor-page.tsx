@@ -8,7 +8,6 @@ export const ConstructorPage = () => {
 
   return (
     <main className={styles.containerMain}>
-      {/* ВОЗВРАЩАЕМ ЗАГОЛОВОК ОБРАТНО! */}
       <h1
         className={`${styles.title} text text_type_main-large mt-10 mb-5 pl-5`}
       >

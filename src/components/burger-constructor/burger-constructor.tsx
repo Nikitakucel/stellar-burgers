@@ -14,7 +14,6 @@ export const BurgerConstructor: FC = () => {
   const { order, loading: orderRequest } = useSelector((state) => state.order);
   const { isAuth } = useSelector((state) => state.user);
 
-  // Исправляем ошибку типов, явно приведя bun к нужному типу
   const constructorItems = {
     bun: bun as TConstructorIngredient | null,
     ingredients
