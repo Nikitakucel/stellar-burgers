@@ -2,7 +2,6 @@
   font-family: 'Jet Brains Mono';
   color: #f2f2f3;
   max-width: 600px;
-
   display: flex;
   flex-direction: column;
 }
@@ -19,12 +18,14 @@ p {
   overflow-y: scroll;
 }
 
+/* ВОТ ЗДЕСЬ ИСПРАВЛЕНИЕ */
 .menu {
   display: flex;
   list-style-type: none;
   margin: 0;
   padding: 0;
-  text-align: center;
+  justify-content: center; /* Сдвигает вкладки к центру */
+  gap: 8px; /* Делает расстояние между ними аккуратным, как в макете */
 }
 
 .categories {

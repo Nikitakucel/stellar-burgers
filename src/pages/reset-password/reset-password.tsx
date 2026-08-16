@@ -1,18 +1,26 @@
-import { FC, SyntheticEvent, useEffect, useState } from 'react';
+// src/pages/reset-password/reset-password.tsx
+import { FC, SyntheticEvent, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-
-import { resetPasswordApi } from '@api';
+import { resetPasswordApi } from '../../utils/burger-api';
 import { ResetPasswordUI } from '@ui-pages';
 
 export const ResetPassword: FC = () => {
-  const navigate = useNavigate();
   const [password, setPassword] = useState('');
   const [token, setToken] = useState('');
   const [error, setError] = useState<Error | null>(null);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const resetFlag = localStorage.getItem('resetPassword');
+    if (!resetFlag) {
+      navigate('/forgot-password');
+    }
+  }, [navigate]);
 
   const handleSubmit = (e: SyntheticEvent) => {
     e.preventDefault();
     setError(null);
+
     resetPasswordApi({ password, token })
       .then(() => {
         localStorage.removeItem('resetPassword');
@@ -20,12 +28,6 @@ export const ResetPassword: FC = () => {
       })
       .catch((err) => setError(err));
   };
-
-  useEffect(() => {
-    if (!localStorage.getItem('resetPassword')) {
-      navigate('/forgot-password', { replace: true });
-    }
-  }, [navigate]);
 
   return (
     <ResetPasswordUI
